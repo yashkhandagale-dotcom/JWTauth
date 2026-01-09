@@ -45,11 +45,10 @@ namespace UserCRUDandJWT.Controllers
             if (user == null)
                 return Unauthorized(new { Error = "Invalid credentials" });
 
-            // 2️⃣ Generate JWT token
             var token = jwtTokenService.GenerateToken(user);
 
-            // 3️⃣ Return token to client
             return Ok(new { Token = token });
+
         }
     }
 }

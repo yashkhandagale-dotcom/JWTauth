@@ -138,3 +138,4 @@ C:\Users\Yash\source\repos\UserCRUDandJWT\UserCRUDandJWT\obj\Debug\net8.0\UserCR
 C:\Users\Yash\source\repos\UserCRUDandJWT\UserCRUDandJWT\obj\Debug\net8.0\ref\UserCRUDandJWT.dll
 C:\Users\Yash\source\repos\UserCRUDandJWT\UserCRUDandJWT\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Yash\source\repos\UserCRUDandJWT\UserCRUDandJWT\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Yash\source\repos\UserCRUDandJWT\UserCRUDandJWT\obj\Debug\net8.0\UserCRUDandJWT.sourcelink.json
