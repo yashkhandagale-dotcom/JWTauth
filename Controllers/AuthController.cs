@@ -15,6 +15,7 @@ namespace UserCRUDandJWT.Controllers
             _authService = authService;
         }
 
+        // ================= REGISTER =================
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
@@ -24,31 +25,48 @@ namespace UserCRUDandJWT.Controllers
             try
             {
                 await _authService.RegisterAsync(dto);
-                return Ok(new { Message = "User registered successfully" });
+                return Ok(new { message = "User registered successfully" });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(new { error = ex.Message });
             }
         }
 
+        // ================= LOGIN =================
         [HttpPost("login")]
-        public async Task<IActionResult> Login(
-            [FromBody] LoginDto dto,
-            [FromServices] IJwtTokenService jwtTokenService)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _authService.ValidateUserAsync(dto);
+            try
+            {
+                var result = await _authService.LoginAsync(dto);
+                return Ok(result); // AccessToken + RefreshToken
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
+            }
+        }
 
-            if (user == null)
-                return Unauthorized(new { Error = "Invalid credentials" });
+        // ================= REFRESH =================
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var token = jwtTokenService.GenerateToken(user);
-
-            return Ok(new { Token = token });
-
+            try
+            {
+                var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
+            }
         }
     }
 }
