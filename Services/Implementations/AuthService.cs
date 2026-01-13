@@ -16,11 +16,14 @@ namespace UserCRUDandJWT.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+        private readonly IEmailService _emailService;
 
-        public AuthService(AppDbContext context, IConfiguration config)
+
+        public AuthService(AppDbContext context, IConfiguration config,IEmailService emailService)
         {
             _context = context;
             _config = config;
+            _emailService = emailService;
         }
 
         // ================= REGISTER =================
@@ -41,6 +44,19 @@ namespace UserCRUDandJWT.Services.Implementations
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            // 📧 Send welcome email (non-blocking)
+            try
+            {
+                await _emailService.SendWelcomeEmailAsync(
+                    user.Email,
+                    user.Username
+                );
+            }
+            catch
+            {
+                // Log email sending failure, but don't block registration
+            }
         }
 
         // ================= LOGIN =================
@@ -55,15 +71,27 @@ namespace UserCRUDandJWT.Services.Implementations
             var accessToken = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
 
-            var refreshTokenEntity = new RefreshToken
+            _context.RefreshTokens.Add(new RefreshToken
             {
                 Token = refreshToken,
                 UserId = user.Id,
                 ExpiresAt = DateTime.UtcNow.AddDays(7)
-            };
+            });
 
-            _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
+
+            // 📧 Send login alert email
+            try
+            {
+                await _emailService.SendLoginEmailAsync(
+                    user.Email,
+                    user.Username
+                );
+            }
+            catch
+            {
+                // log only
+            }
 
             return new AuthResponseDto
             {
@@ -71,6 +99,7 @@ namespace UserCRUDandJWT.Services.Implementations
                 RefreshToken = refreshToken
             };
         }
+
 
         // ================= REFRESH TOKEN =================
         public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)

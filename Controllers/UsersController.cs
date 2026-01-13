@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserCRUDandJWT.DTOs;
+using UserCRUDandJWT.Models;
 using UserCRUDandJWT.Services.Interfaces;
 
 namespace UserCRUDandJWT.Controllers
@@ -36,5 +38,14 @@ namespace UserCRUDandJWT.Controllers
             await _userService.DeleteAsync(id);
             return Ok("User deleted");
         }
+
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
+        {
+            await _userService.UpdateAsync(id, dto);
+            return Ok("User updated successfully");
+        }
+
     }
 }
